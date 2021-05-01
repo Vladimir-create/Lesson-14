@@ -3,7 +3,7 @@ package main
 
 import (
 	"log"
-	//"time"
+	"time"
 	"fmt"
 	"github.com/gorilla/websocket"
 )
@@ -30,11 +30,12 @@ func readMess() {
 		}
 		log.Printf("recv: %s", p)
 	}
+	go readMess()
 }
 
 
 func writeMess() {
-	c, _, err := websocket.DefaultDialer.Dial("ws://localhost:8080/socket2", nil)
+	c, _, err := websocket.DefaultDialer.Dial("ws://localhost:8080/socket", nil)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
@@ -54,5 +55,6 @@ func writeMess() {
 func main (){
 	go writeMess()
 	go readMess()
+	time.Sleep(100*time.Second)
 }
 

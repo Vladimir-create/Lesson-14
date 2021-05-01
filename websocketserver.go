@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"io"
 	"log"
-	"fmt"
+	"time"
 	"github.com/gorilla/websocket"
 )
 
@@ -30,15 +30,7 @@ func Handler(w http.ResponseWriter, req *http.Request) {
 	
 }
 
-func write(w http.ResponseWriter, req *http.Request) {
-	var s string
-	fmt.Scan(&s)
-	if err := conn.WriteMessage(1, []byte(s)); err != nil {
-		log.Println(err)
-		return
-	}
-	log.Println(s)
-}
+
 
 func Socket(w http.ResponseWriter, req *http.Request) {
 	conn, err := upgrader.Upgrade(w, req, nil)
@@ -47,10 +39,7 @@ func Socket(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	
-	
 	for {
-		go write(http.ResponseWriter, *http.Request)
-
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
@@ -64,13 +53,22 @@ func Socket(w http.ResponseWriter, req *http.Request) {
 		}
 		log.Println(p)
 	}
+	go messages()
 }
 
 func main() {
-	http.HandleFunc("/", Handler)
-	http.HandleFunc("/socket", Socket)
-	
+	go new()
+	go messages()
 	err := http.ListenAndServe(":8080", nil)
 	panic(err)
+	time.Sleep(100*time.Second)
+}
+
+func new() {
+	 http.HandleFunc("/", Handler)
+}
+
+func messages() {
+	http.HandleFunc("/socket", Socket)
 }
 
