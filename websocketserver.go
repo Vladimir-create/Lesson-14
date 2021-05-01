@@ -30,13 +30,27 @@ func Handler(w http.ResponseWriter, req *http.Request) {
 	
 }
 
-func Socketread(w http.ResponseWriter, req *http.Request) {
+func write(w http.ResponseWriter, req *http.Request) {
+	var s string
+	fmt.Scan(&s)
+	if err := conn.WriteMessage(1, []byte(s)); err != nil {
+		log.Println(err)
+		return
+	}
+	log.Println(s)
+}
+
+func Socket(w http.ResponseWriter, req *http.Request) {
 	conn, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	
+	
 	for {
+		go write(http.ResponseWriter, *http.Request)
+
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
@@ -52,28 +66,9 @@ func Socketread(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func Socketwrite(w http.ResponseWriter, req *http.Request) {
-	conn, err := upgrader.Upgrade(w, req, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	var s string 
-	
-	for {
-		fmt.Scan(&s)
-		if err := conn.WriteMessage(1, []byte(s)); err != nil {
-			log.Println(err)
-			return
-		}
-		log.Println(s)
-	}
-}
-
 func main() {
 	http.HandleFunc("/", Handler)
-	http.HandleFunc("/socket2", Socketwrite)
-	http.HandleFunc("/socket", Socketread)
+	http.HandleFunc("/socket", Socket)
 	
 	err := http.ListenAndServe(":8080", nil)
 	panic(err)
