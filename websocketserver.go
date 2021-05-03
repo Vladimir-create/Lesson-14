@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"io"
 	"log"
-	"time"
 	"github.com/gorilla/websocket"
 )
 
@@ -56,21 +55,11 @@ func Socket(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	new()
-	go messages()
+	http.HandleFunc("/", Handler)
+	http.HandleFunc("/socket", Socket)
 	
 	err := http.ListenAndServe(":8080", nil)
 	panic(err)
-	time.Sleep(100*time.Second)
 }
 
-func new() {
-	 http.HandleFunc("/", Handler)
-	 time.Sleep(1*time.Second)
-	// new()
-}
-
-func messages() {
-	http.HandleFunc("/socket", Socket)
-}
 
