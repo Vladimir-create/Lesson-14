@@ -8,6 +8,8 @@ import (
 )
 
 var upgrader = websocket.Upgrader{}
+var mas = make([]*websocket.Conn, 0, 0)
+
 
 func Handler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin","*")
@@ -33,6 +35,7 @@ func Handler(w http.ResponseWriter, req *http.Request) {
 
 func Socket(w http.ResponseWriter, req *http.Request) {
 	conn, err := upgrader.Upgrade(w, req, nil)
+	mas = append(mas, conn)
 	if err != nil {
 		log.Println(err)
 		return
@@ -46,11 +49,14 @@ func Socket(w http.ResponseWriter, req *http.Request) {
 		}
 		log.Printf("recv: %s", p)
 		
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Println(err)
-			return
+		for i:=0; i<len(mas)-1; i++{
+			if mas[i] == conn {i++}
+			if err := mas[i].WriteMessage(messageType, p); err != nil {
+				log.Println(err)
+				return
+			}
+			log.Println(p)
 		}
-		log.Println(p)
 	}
 }
 

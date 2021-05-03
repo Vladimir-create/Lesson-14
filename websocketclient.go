@@ -13,7 +13,6 @@ var (
 	//nickname = []byte{'Player1'}
 )
 
-
 func readMess(c *websocket.Conn) {
 	
 	for {
