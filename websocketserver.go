@@ -53,12 +53,12 @@ func Socket(w http.ResponseWriter, req *http.Request) {
 		}
 		log.Println(p)
 	}
-	go messages()
 }
 
 func main() {
-	go new()
+	new()
 	go messages()
+	
 	err := http.ListenAndServe(":8080", nil)
 	panic(err)
 	time.Sleep(100*time.Second)
@@ -66,6 +66,8 @@ func main() {
 
 func new() {
 	 http.HandleFunc("/", Handler)
+	 time.Sleep(1*time.Second)
+	// new()
 }
 
 func messages() {
